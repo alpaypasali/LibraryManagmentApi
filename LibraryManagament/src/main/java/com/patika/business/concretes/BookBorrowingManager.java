@@ -1,6 +1,7 @@
 package com.patika.business.concretes;
 
 import com.patika.business.abstracts.IBookBorrowingService;
+import com.patika.business.abstracts.IBookService;
 import com.patika.business.rules.BookBorrowingBusinessRules;
 import com.patika.core.utilities.mappers.ModelMapperService;
 import com.patika.core.utilities.results.DataResult;
@@ -24,6 +25,7 @@ import java.util.List;
 public class BookBorrowingManager implements IBookBorrowingService {
     private final BookBorrowingRepository bookBorrowingRepository;
     private  final ModelMapperService modelMapperService;
+    private  final IBookService bookService;
     private  final BookBorrowingBusinessRules rules;
 
     @Override
@@ -39,17 +41,19 @@ public class BookBorrowingManager implements IBookBorrowingService {
 
     @Override
     public Result create(CreateBookBorrowingRequest createBookBorrowingRequest) {
-
+        rules.checkIfBookHaveAStock(createBookBorrowingRequest.getBookId());
         BookBorrowing bookBorrowing = this.modelMapperService.forRequest()
                 .map(createBookBorrowingRequest , BookBorrowing.class);
 
         this.bookBorrowingRepository.save(bookBorrowing);
+        this.bookService.decreaseStock(createBookBorrowingRequest.getBookId());
         return new SuccessResult("Book Borrowing added");
     }
 
     @Override
     public DataResult<BookBorrowingResponse> update(UpdateBookBorrowingRequest updateBookBorrowingRequest) {
         this.rules.checkIfBookBorrowingIdNotFind(updateBookBorrowingRequest.getBorrowingId());
+        rules.checkIfBookHaveAStock(updateBookBorrowingRequest.getBookId());
         BookBorrowing existingBookBorrowing = this.bookBorrowingRepository.getById(updateBookBorrowingRequest.getBorrowingId());
         this.modelMapperService.forRequest().map(updateBookBorrowingRequest, existingBookBorrowing);
 
@@ -63,6 +67,7 @@ public class BookBorrowingManager implements IBookBorrowingService {
         this.rules.checkIfBookBorrowingIdNotFind(id);
         BookBorrowing deletedBookBorrowing = this.bookBorrowingRepository.getById(id);
         this.bookBorrowingRepository.delete(deletedBookBorrowing);
+        this.bookService.increaseStock(deletedBookBorrowing.getBook().getBookId());
         return new SuccessResult("Book Borrowing deleted");
     }
 

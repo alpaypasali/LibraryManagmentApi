@@ -24,4 +24,5 @@ public class ModelMapperManager implements  ModelMapperService{
                 .setMatchingStrategy(MatchingStrategies.STANDARD);//herseyı map et
         return  this.modelMapper;
     }
+
 }

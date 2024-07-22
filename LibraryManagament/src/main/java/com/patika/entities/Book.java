@@ -1,5 +1,6 @@
 package com.patika.entities;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

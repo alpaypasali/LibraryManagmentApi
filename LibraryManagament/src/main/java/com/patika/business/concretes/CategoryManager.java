@@ -18,6 +18,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class CategoryManager implements ICategoryService {
@@ -71,6 +73,10 @@ public class CategoryManager implements ICategoryService {
         Category existingCategory = this.categoryRepository.getById(id);
         GetCategoryResponse response = this.modelMapperService.forResponse().map(existingCategory, GetCategoryResponse.class);
         return new SuccessDataResult<>(response);
+    }
+    @Override
+    public List<Category> getCategoriesByIds(List<Integer> ids) {
+        return categoryRepository.findAllById(ids);
     }
 
 }
